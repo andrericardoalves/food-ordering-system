@@ -9,23 +9,23 @@
         <module name="order-application" />
         <module name="order-messaging" />
         <module name="order-domain-core" />
+        <module name="order-application-service" />
         <module name="order-dataaccess" />
         <module name="order-container" />
-        <module name="order-applicacation-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="food-ordering-system" options="" />
-      <module name="order-applicacation-service" options="-parameters" />
       <module name="order-application" options="-parameters" />
+      <module name="order-application-service" options="-parameters" />
       <module name="order-container" options="-parameters" />
       <module name="order-dataaccess" options="-parameters" />
       <module name="order-domain" options="" />
       <module name="order-domain-core" options="-parameters" />
       <module name="order-messaging" options="-parameters" />
-      <module name="order-service" options="" />
+      <module name="order-service" options="-parameters" />
     </option>
   </component>
 </project>
