@@ -1,0 +1,8 @@
+ Visualize dependencies:
+
+ https://github.com/ferstl/depgraph-maven-plugin
+ 1 - Install Graphviz:
+ http://www.graphviz.org/
+
+2 - Run on the Command Line:
+ mvn com.github.ferstl:depgraph-maven-plugin:aggregate -DcreateImage=true -DreduceEdges=false -Dscope=compile "-Dincludes=com.food.ordering.system*:*"
