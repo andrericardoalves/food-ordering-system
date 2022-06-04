@@ -5,6 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <modules>
         <module>order-service</module>
+        <module>common</module>
     </modules>
 
 
@@ -50,6 +51,11 @@
             <dependency>
                 <groupId>com.food.ordering.system</groupId>
                 <artifactId>order-messaging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.food.ordering.system</groupId>
+                <artifactId>common-damain</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
