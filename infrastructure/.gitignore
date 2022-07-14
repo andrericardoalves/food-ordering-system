@@ -1,0 +1,8 @@
+# IDEs and editors
+.idea/
+.settings/
+target/
+*.iml
+.project
+.classpath
+databases/postgres/postgres-data
