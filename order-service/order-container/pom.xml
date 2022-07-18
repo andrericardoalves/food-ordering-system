@@ -11,10 +11,7 @@
 
     <artifactId>order-container</artifactId>
 
-    <properties>
-    </properties>
-
-    <dependencies>
+   <dependencies>
         <dependency>
             <groupId>com.food.ordering.system</groupId>
             <artifactId>order-domain-core</artifactId>

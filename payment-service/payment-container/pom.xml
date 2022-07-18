@@ -49,7 +49,7 @@
                     <execution>
                         <phase>install</phase>
                         <goals>
-                            <goal>build-image</goal>
+                         <!--   <goal>build-image</goal> -->
                         </goals>
                     </execution>
                 </executions>
