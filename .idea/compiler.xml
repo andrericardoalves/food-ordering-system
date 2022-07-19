@@ -9,12 +9,20 @@
         <outputRelativeToContentRoot value="true" />
         <module name="common-application" />
         <module name="kafka-model" />
+        <module name="customer-service" />
         <module name="kafka-consumer" />
+        <module name="order-application-service" />
+        <module name="kafka-producer" />
         <module name="payment-messaging" />
+        <module name="kafka-config-data" />
+        <module name="payment-dataaccess" />
         <module name="order-dataaccess" />
+        <module name="order-container" />
         <module name="restaurant-container" />
         <module name="order-messaging" />
         <module name="payment-application-service" />
+        <module name="restaurant-dataaccess" />
+        <module name="payment-container" />
         <module name="common-domain" />
         <module name="order-application" />
         <module name="restaurant-domain-core" />
@@ -22,14 +30,6 @@
         <module name="payment-domain-core" />
         <module name="postgres" />
         <module name="restaurant-application-service" />
-        <module name="customer-service" />
-        <module name="order-application-service" />
-        <module name="kafka-producer" />
-        <module name="kafka-config-data" />
-        <module name="payment-dataaccess" />
-        <module name="order-container" />
-        <module name="restaurant-dataaccess" />
-        <module name="payment-container" />
         <module name="restaurant-messaging" />
       </profile>
     </annotationProcessing>
