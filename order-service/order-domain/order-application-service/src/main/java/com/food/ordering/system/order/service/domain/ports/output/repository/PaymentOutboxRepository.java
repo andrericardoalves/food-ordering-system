@@ -13,7 +13,7 @@ public interface PaymentOutboxRepository {
 
     Optional<List<OrderPaymentOutboxMessage>> findByTypeAndOutboxStatusAndSagaStatus(String type,
                                                                                      OutboxStatus outboxStatus,
-                                                                                     SagaStatus sagaStatus);
+                                                                                     SagaStatus ... sagaStatus);
     Optional<OrderPaymentOutboxMessage> findByTypeAndSagaIdAndSagaStatus(String type,
                                                                          UUID sagaId,
                                                                          SagaStatus ... sagaStatus);
