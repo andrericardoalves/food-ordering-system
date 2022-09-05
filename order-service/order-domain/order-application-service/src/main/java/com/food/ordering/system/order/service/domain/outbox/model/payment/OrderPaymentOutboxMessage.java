@@ -16,9 +16,11 @@ import java.util.UUID;
 public class OrderPaymentOutboxMessage {
     private UUID id;
     private UUID sagaId;
+
     private ZonedDateTime createdAt;
     private ZonedDateTime processedAt;
     private String payload;
+    private String type;
     private SagaStatus sagaStatus;
     private OrderStatus orderStatus;
     private OutboxStatus outboxStatus;
