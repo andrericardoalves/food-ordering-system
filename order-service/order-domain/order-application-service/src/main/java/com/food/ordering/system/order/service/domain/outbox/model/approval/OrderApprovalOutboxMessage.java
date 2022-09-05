@@ -17,6 +17,7 @@ public class OrderApprovalOutboxMessage {
     private UUID id;
     private UUID sagaId;
     private ZonedDateTime createdAt;
+    private String type;
     private ZonedDateTime processedAt;
     private String payload;
     private SagaStatus sagaStatus;
