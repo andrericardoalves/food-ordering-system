@@ -39,7 +39,7 @@ public class OrderApprovedKafkaMessagePublisher implements OrderApprovedMessageP
             RestaurantApprovalResponseAvroModel restaurantApprovalResponseAvroModel =
                     restaurantMessagingDataMapper
                             .orderApprovedEventToRestaurantApprovalResponseAvroModel(orderApprovedEvent);
-
+            /*
             kafkaProducer.send(restaurantServiceConfigData.getRestaurantApprovalResponseTopicName(),
                     orderId,
                     restaurantApprovalResponseAvroModel,
@@ -48,7 +48,7 @@ public class OrderApprovedKafkaMessagePublisher implements OrderApprovedMessageP
                             restaurantApprovalResponseAvroModel,
                             orderId,
                             "RestaurantApprovalResponseAvroModel"));
-
+            */
             log.info("RestaurantApprovalResponseAvroModel sent to kafka at: {}", System.nanoTime());
         } catch (Exception e) {
             log.error("Error while sending RestaurantApprovalResponseAvroModel message" +

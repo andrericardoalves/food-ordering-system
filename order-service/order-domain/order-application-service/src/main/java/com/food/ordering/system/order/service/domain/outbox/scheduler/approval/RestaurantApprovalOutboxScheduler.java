@@ -22,7 +22,8 @@ public class RestaurantApprovalOutboxScheduler implements OutboxScheduler {
     private final RestaurantApprovalRequestMessagePublisher restaurantApprovalRequestMessagePublisher;
 
     public RestaurantApprovalOutboxScheduler(ApprovalOutboxHelper approvalOutboxHelper,
-                                             RestaurantApprovalRequestMessagePublisher restaurantApprovalRequestMessagePublisher) {
+                                             RestaurantApprovalRequestMessagePublisher
+                                                     restaurantApprovalRequestMessagePublisher) {
         this.approvalOutboxHelper = approvalOutboxHelper;
         this.restaurantApprovalRequestMessagePublisher = restaurantApprovalRequestMessagePublisher;
     }
@@ -32,7 +33,6 @@ public class RestaurantApprovalOutboxScheduler implements OutboxScheduler {
     @Transactional
     @Scheduled(fixedDelayString = "${order-service.outbox-scheduler-fixed-rate}",
             initialDelayString = "${order-service.outbox-scheduler-initial-delay}")
-
     public void processOutboxMessage() {
         Optional<List<OrderApprovalOutboxMessage>> outboxMessagesResponse =
                 approvalOutboxHelper.getApprovalOutboxMessageByOutboxStatusAndSagaStatus(

@@ -1,9 +1,13 @@
 Commands Kafka:
 Run:
 docker-compose -f common.yaml -f zookeeper.yaml up
+nerdctl compose -f common.yaml -f zookeeper.yaml up
 
 docker-compose -f common.yaml -f kafka_cluster.yaml up
+nerdctl compose -f common.yaml -f kafka_cluster.yaml up
+
 docker-compose -f common.yaml -f init_kafka.yaml up
+nerdctl compose -f common.yaml -f init_kafka.yaml up
 
 Stop:
 docker-compose -f common.yaml -f kafka_cluster.yaml down
@@ -11,4 +15,14 @@ docker-compose -f common.yaml -f init_kafka.yaml down
 
 Open Kafka:
 http://localhost:9000/
+
+Click in "Add Cluster" and configure how describe below:
+
+Cluster Name
+food-ordering-system-cluster
+
+Cluster Zookeeper Hosts
+zookeeper:2181
+
+And click in bottom "Save" and click in link "Go to cluster view"
 

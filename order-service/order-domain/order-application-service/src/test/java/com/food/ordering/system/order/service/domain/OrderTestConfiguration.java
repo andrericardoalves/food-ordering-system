@@ -9,44 +9,43 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(scanBasePackages = "com.food.ordering.system")
 public class OrderTestConfiguration {
-
     @Bean
-    public PaymentRequestMessagePublisher paymentRequestMessagePublisher(){
+    public PaymentRequestMessagePublisher paymentRequestMessagePublisher() {
         return Mockito.mock(PaymentRequestMessagePublisher.class);
     }
 
     @Bean
-    public RestaurantApprovalRequestMessagePublisher restaurantApprovalRequestMessagePublisher(){
+    public RestaurantApprovalRequestMessagePublisher restaurantApprovalRequestMessagePublisher() {
         return Mockito.mock(RestaurantApprovalRequestMessagePublisher.class);
     }
 
-
     @Bean
-    public OrderRepository orderRepository(){
+    public OrderRepository orderRepository() {
         return Mockito.mock(OrderRepository.class);
     }
 
     @Bean
-    public CustomerRepository customerRepository(){
+    public CustomerRepository customerRepository() {
         return Mockito.mock(CustomerRepository.class);
     }
 
     @Bean
-    public RestaurantRepository restaurantRepository(){
+    public RestaurantRepository restaurantRepository() {
         return Mockito.mock(RestaurantRepository.class);
     }
 
     @Bean
-    public PaymentOutboxRepository paymentOutboxRepository(){
+    public PaymentOutboxRepository paymentOutboxRepository() {
         return Mockito.mock(PaymentOutboxRepository.class);
     }
 
     @Bean
-    public ApprovalOutboxRepository approvalOutboxRepository(){
+    public ApprovalOutboxRepository approvalOutboxRepository() {
         return Mockito.mock(ApprovalOutboxRepository.class);
     }
+
     @Bean
-    public OrderDomainService orderDomainService(){
+    public OrderDomainService orderDomainService() {
         return new OrderDomainServiceImpl();
     }
 }

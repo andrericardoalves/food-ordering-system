@@ -24,7 +24,6 @@ public class RestaurantApprovalOutboxCleanerScheduler implements OutboxScheduler
     }
 
     @Override
-    @Transactional
     @Scheduled(cron = "@midnight")
     public void processOutboxMessage() {
         Optional<List<OrderApprovalOutboxMessage>> outboxMessageResponse =
