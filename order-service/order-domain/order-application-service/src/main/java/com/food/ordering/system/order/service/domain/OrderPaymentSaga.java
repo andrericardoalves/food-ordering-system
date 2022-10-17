@@ -1,11 +1,13 @@
 package com.food.ordering.system.order.service.domain;
 
+import com.food.ordering.system.domain.valueobject.OrderId;
 import com.food.ordering.system.domain.valueobject.OrderStatus;
 import com.food.ordering.system.domain.valueobject.PaymentStatus;
 import com.food.ordering.system.order.service.domain.dto.message.PaymentResponse;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.event.OrderPaidEvent;
 import com.food.ordering.system.order.service.domain.exception.OrderDomainException;
+import com.food.ordering.system.order.service.domain.exception.OrderNotFoundException;
 import com.food.ordering.system.order.service.domain.mapper.OrderDataMapper;
 import com.food.ordering.system.order.service.domain.outbox.model.approval.OrderApprovalOutboxMessage;
 import com.food.ordering.system.order.service.domain.outbox.model.payment.OrderPaymentOutboxMessage;
@@ -39,29 +41,27 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
 
     public OrderPaymentSaga(OrderDomainService orderDomainService,
                             OrderRepository orderRepository,
-                            OrderSagaHelper orderSagaHelper,
                             PaymentOutboxHelper paymentOutboxHelper,
                             ApprovalOutboxHelper approvalOutboxHelper,
+                            OrderSagaHelper orderSagaHelper,
                             OrderDataMapper orderDataMapper) {
         this.orderDomainService = orderDomainService;
         this.orderRepository = orderRepository;
-        this.orderSagaHelper = orderSagaHelper;
         this.paymentOutboxHelper = paymentOutboxHelper;
         this.approvalOutboxHelper = approvalOutboxHelper;
+        this.orderSagaHelper = orderSagaHelper;
         this.orderDataMapper = orderDataMapper;
     }
-
 
     @Override
     @Transactional
     public void process(PaymentResponse paymentResponse) {
-
         Optional<OrderPaymentOutboxMessage> orderPaymentOutboxMessageResponse =
                 paymentOutboxHelper.getPaymentOutboxMessageBySagaIdAndSagaStatus(
-                UUID.fromString(paymentResponse.getPaymentId()),
-                SagaStatus.STARTED);
+                        UUID.fromString(paymentResponse.getSagaId()),
+                        SagaStatus.STARTED);
 
-        if (orderPaymentOutboxMessageResponse.isEmpty()){
+        if (orderPaymentOutboxMessageResponse.isEmpty()) {
             log.info("An outbox message with saga id: {} is already processed!", paymentResponse.getSagaId());
             return;
         }
@@ -79,9 +79,9 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
                 .saveApprovalOutboxMessage(orderDataMapper.orderPaidEventToOrderApprovalEventPayload(domainEvent),
                         domainEvent.getOrder().getOrderStatus(),
                         sagaStatus,
-                        OutboxStatus.STATED,
+                        OutboxStatus.STARTED,
                         UUID.fromString(paymentResponse.getSagaId()));
-        
+
         log.info("Order with id: {} is paid", domainEvent.getOrder().getId().getValue());
     }
 
@@ -93,8 +93,9 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
                 paymentOutboxHelper.getPaymentOutboxMessageBySagaIdAndSagaStatus(
                         UUID.fromString(paymentResponse.getSagaId()),
                         getCurrentSagaStatus(paymentResponse.getPaymentStatus()));
-        if(orderPaymentOutboxMessageResponse.isEmpty()){
-            log.info("An order message with saga id: {} is already roll backed!", paymentResponse.getSagaId());
+
+        if (orderPaymentOutboxMessageResponse.isEmpty()) {
+            log.info("An outbox message with saga id: {} is already roll backed!", paymentResponse.getSagaId());
             return;
         }
 
@@ -107,56 +108,68 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
         paymentOutboxHelper.save(getUpdatedPaymentOutboxMessage(orderPaymentOutboxMessage,
                 order.getOrderStatus(), sagaStatus));
 
-        if(paymentResponse.getPaymentStatus() == PaymentStatus.CANCELLED){
+        if (paymentResponse.getPaymentStatus() == PaymentStatus.CANCELLED) {
             approvalOutboxHelper.save(getUpdatedApprovalOutboxMessage(paymentResponse.getSagaId(),
                     order.getOrderStatus(), sagaStatus));
         }
 
         log.info("Order with id: {} is cancelled", order.getId().getValue());
+    }
 
+    private Order findOrder(String orderId) {
+        Optional<Order> orderResponse = orderRepository.findById(new OrderId(UUID.fromString(orderId)));
+        if (orderResponse.isEmpty()) {
+            log.error("Order with id: {} could not be found!", orderId);
+            throw new OrderNotFoundException("Order with id " + orderId + " could not be found!");
+        }
+        return orderResponse.get();
     }
 
     private OrderPaymentOutboxMessage getUpdatedPaymentOutboxMessage(OrderPaymentOutboxMessage
                                                                              orderPaymentOutboxMessage,
-                                                                     OrderStatus orderStatus,
-                                                                     SagaStatus sagaStatus) {
+                                                                     OrderStatus
+                                                                             orderStatus,
+                                                                     SagaStatus
+                                                                             sagaStatus) {
         orderPaymentOutboxMessage.setProcessedAt(ZonedDateTime.now(ZoneId.of(UTC)));
         orderPaymentOutboxMessage.setOrderStatus(orderStatus);
         orderPaymentOutboxMessage.setSagaStatus(sagaStatus);
         return orderPaymentOutboxMessage;
     }
 
-    private OrderPaidEvent completePaymentForOrder(PaymentResponse paymentResponse){
+    private OrderPaidEvent completePaymentForOrder(PaymentResponse paymentResponse) {
         log.info("Completing payment for order with id: {}", paymentResponse.getOrderId());
-        Order order = orderSagaHelper.findOrder(paymentResponse.getOrderId());
+        Order order = findOrder(paymentResponse.getOrderId());
         OrderPaidEvent domainEvent = orderDomainService.payOrder(order);
-        orderSagaHelper.saveOrder(order);
+        orderRepository.save(order);
         return domainEvent;
     }
 
-    private SagaStatus [] getCurrentSagaStatus(PaymentStatus paymentStatus) {
-        return switch (paymentStatus){
-            case COMPLETED -> new SagaStatus[] {SagaStatus.STARTED};
-            case CANCELLED -> new SagaStatus[] {SagaStatus.PROCESSING};
-            case FAILED -> new SagaStatus[] {SagaStatus.STARTED, SagaStatus.PROCESSING};
+    private SagaStatus[] getCurrentSagaStatus(PaymentStatus paymentStatus) {
+        return switch (paymentStatus) {
+            case COMPLETED -> new SagaStatus[] { SagaStatus.STARTED };
+            case CANCELLED -> new SagaStatus[] { SagaStatus.PROCESSING };
+            case FAILED -> new SagaStatus[] { SagaStatus.STARTED, SagaStatus.PROCESSING };
         };
     }
 
     private Order rollbackPaymentForOrder(PaymentResponse paymentResponse) {
         log.info("Cancelling order with id: {}", paymentResponse.getOrderId());
-        Order order = orderSagaHelper.findOrder(paymentResponse.getOrderId());
+        Order order = findOrder(paymentResponse.getOrderId());
         orderDomainService.cancelOrder(order, paymentResponse.getFailureMessages());
-        orderSagaHelper.saveOrder(order);
+        orderRepository.save(order);
         return order;
     }
 
-    private OrderApprovalOutboxMessage getUpdatedApprovalOutboxMessage(String sagaId, OrderStatus orderStatus, SagaStatus sagaStatus) {
+    private OrderApprovalOutboxMessage getUpdatedApprovalOutboxMessage(String sagaId,
+                                                                       OrderStatus orderStatus,
+                                                                       SagaStatus sagaStatus) {
         Optional<OrderApprovalOutboxMessage> orderApprovalOutboxMessageResponse =
                 approvalOutboxHelper.getApprovalOutboxMessageBySagaIdAndSagaStatus(
                         UUID.fromString(sagaId),
                         SagaStatus.COMPENSATING);
-        if (orderApprovalOutboxMessageResponse.isEmpty()){
-            throw new OrderDomainException("Approval outbox message could not be found in" +
+        if (orderApprovalOutboxMessageResponse.isEmpty()) {
+            throw new OrderDomainException("Approval outbox message could not be found in " +
                     SagaStatus.COMPENSATING.name() + " status!");
         }
         OrderApprovalOutboxMessage orderApprovalOutboxMessage = orderApprovalOutboxMessageResponse.get();
@@ -165,5 +178,4 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
         orderApprovalOutboxMessage.setSagaStatus(sagaStatus);
         return orderApprovalOutboxMessage;
     }
-
 }
