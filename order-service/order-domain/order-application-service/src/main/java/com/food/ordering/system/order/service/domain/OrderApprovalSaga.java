@@ -109,7 +109,7 @@ public class OrderApprovalSaga implements SagaStep<RestaurantApprovalResponse> {
                 .orderCancelledEventToOrderPaymentEventPayload(domainEvent),
                 domainEvent.getOrder().getOrderStatus(),
                 sagaStatus,
-                OutboxStatus.STATED,
+                OutboxStatus.STARTED,
                 UUID.fromString(restaurantApprovalResponse.getSagaId()));
 
         log.info("Order with id: {} is cancelling", domainEvent.getOrder().getId().getValue());
