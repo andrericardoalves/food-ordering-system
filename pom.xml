@@ -84,7 +84,7 @@
             </dependency>
             <dependency>
                 <groupId>com.food.ordering.system</groupId>
-                <artifactId>payment-dataacess</artifactId>
+                <artifactId>payment-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

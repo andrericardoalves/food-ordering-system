@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.UUID;
 
 import static com.food.ordering.system.domain.DomainConstants.UTC;
@@ -134,26 +133,27 @@ public class OrderApprovalSaga implements SagaStep<RestaurantApprovalResponse> {
     return orderApprovalOutboxMessage;
   }
 
-    private OrderPaymentOutboxMessage getUpdatedPaymentOutboxMessage(String sagaId, OrderStatus orderStatus, SagaStatus sagaStatus) {
-     Optional<OrderPaymentOutboxMessage> orderPaymentOutboxMessageResponse = paymentOutboxHelper
-             .getPaymentOutboxMessageBySagaIdAndSagaStatus(UUID.fromString(sagaId), SagaStatus.PROCESSING);
-     if(orderPaymentOutboxMessageResponse.isEmpty()){
-         throw new OrderDomainException("Payment outbox message cannot be found in" +
-                 SagaStatus.COMPENSATING.name() + " state");
-     }
-
-     OrderPaymentOutboxMessage orderPaymentOutboxMessage = orderPaymentOutboxMessageResponse.get();
-     orderPaymentOutboxMessage.setProcessedAt(ZonedDateTime.now(ZoneId.of(UTC)));
-     orderPaymentOutboxMessage.setOrderStatus(orderStatus);
-     orderPaymentOutboxMessage.setSagaStatus(sagaStatus);
-    return  orderPaymentOutboxMessage;
-
+    private OrderPaymentOutboxMessage getUpdatedPaymentOutboxMessage(String sagaId,
+                                                                     OrderStatus orderStatus,
+                                                                     SagaStatus sagaStatus) {
+        Optional<OrderPaymentOutboxMessage> orderPaymentOutboxMessageResponse = paymentOutboxHelper
+                .getPaymentOutboxMessageBySagaIdAndSagaStatus(UUID.fromString(sagaId), SagaStatus.PROCESSING);
+        if (orderPaymentOutboxMessageResponse.isEmpty()) {
+            throw new OrderDomainException("Payment outbox message cannot be found in " +
+                    SagaStatus.PROCESSING.name() + " state");
+        }
+        OrderPaymentOutboxMessage orderPaymentOutboxMessage = orderPaymentOutboxMessageResponse.get();
+        orderPaymentOutboxMessage.setProcessedAt(ZonedDateTime.now(ZoneId.of(UTC)));
+        orderPaymentOutboxMessage.setOrderStatus(orderStatus);
+        orderPaymentOutboxMessage.setSagaStatus(sagaStatus);
+        return orderPaymentOutboxMessage;
     }
 
     private OrderCancelledEvent rollbackOrder(RestaurantApprovalResponse restaurantApprovalResponse) {
         log.info("Cancelling order with id: {}", restaurantApprovalResponse.getOrderId());
         Order order = orderSagaHelper.findOrder(restaurantApprovalResponse.getOrderId());
-        OrderCancelledEvent domainEvent = orderDomainService.cancelOrderPayment(order, restaurantApprovalResponse.getFailureMessages());
+        OrderCancelledEvent domainEvent = orderDomainService.cancelOrderPayment(order,
+                restaurantApprovalResponse.getFailureMessages());
         orderSagaHelper.saveOrder(order);
         return domainEvent;
     }

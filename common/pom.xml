@@ -17,7 +17,4 @@
         <module>common-dataaccess</module>
     </modules>
 
-    <properties>
-    </properties>
-
 </project>

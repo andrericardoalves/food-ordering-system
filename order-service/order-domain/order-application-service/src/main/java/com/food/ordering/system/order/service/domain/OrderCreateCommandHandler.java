@@ -1,6 +1,5 @@
 package com.food.ordering.system.order.service.domain;
 
-import com.food.ordering.system.domain.valueobject.OrderStatus;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderCommand;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderResponse;
 import com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;
@@ -33,11 +32,10 @@ public class OrderCreateCommandHandler {
     }
 
     @Transactional
-    public CreateOrderResponse createOrder(CreateOrderCommand createOrderCommand){
+    public CreateOrderResponse createOrder(CreateOrderCommand createOrderCommand) {
         OrderCreatedEvent orderCreatedEvent = orderCreateHelper.persistOrder(createOrderCommand);
-        log.info("Order is created with id: {} ", orderCreatedEvent.getOrder().getId().getValue());
-        CreateOrderResponse createOrderResponse =
-                orderDataMapper.orderToCreateOrderResponse(orderCreatedEvent.getOrder(),
+        log.info("Order is created with id: {}", orderCreatedEvent.getOrder().getId().getValue());
+        CreateOrderResponse createOrderResponse = orderDataMapper.orderToCreateOrderResponse(orderCreatedEvent.getOrder(),
                 "Order created successfully");
 
         paymentOutboxHelper.savePaymentOutboxMessage(orderDataMapper
@@ -46,9 +44,9 @@ public class OrderCreateCommandHandler {
                 orderSagaHelper.orderStatusToSagaStatus(orderCreatedEvent.getOrder().getOrderStatus()),
                 OutboxStatus.STARTED,
                 UUID.randomUUID());
-        log.info("Returning CreateOrderResponse with order id: {} ", orderCreatedEvent.getOrder().getId());
 
-        return  createOrderResponse;
+        log.info("Returning CreateOrderResponse with order id: {}", orderCreatedEvent.getOrder().getId());
+
+        return createOrderResponse;
     }
-
 }

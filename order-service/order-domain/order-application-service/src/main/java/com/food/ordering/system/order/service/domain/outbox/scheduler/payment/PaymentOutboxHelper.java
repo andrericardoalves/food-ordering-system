@@ -32,37 +32,37 @@ public class PaymentOutboxHelper {
         this.objectMapper = objectMapper;
     }
 
-    @Transactional( readOnly = true)
-    public Optional<List<OrderPaymentOutboxMessage>>
-            getPaymentOutboxMessageByOutboxStatusAndSagaStatus(OutboxStatus outboxStatus,
-                                                               SagaStatus ... sagaStatus){
+    @Transactional(readOnly = true)
+    public Optional<List<OrderPaymentOutboxMessage>> getPaymentOutboxMessageByOutboxStatusAndSagaStatus(
+            OutboxStatus outboxStatus, SagaStatus... sagaStatus) {
         return paymentOutboxRepository.findByTypeAndOutboxStatusAndSagaStatus(ORDER_SAGA_NAME,
                 outboxStatus,
                 sagaStatus);
     }
 
-    @Transactional( readOnly = true)
+    @Transactional(readOnly = true)
     public Optional<OrderPaymentOutboxMessage> getPaymentOutboxMessageBySagaIdAndSagaStatus(UUID sagaId,
-                                                                                            SagaStatus ... sagaStatus){
+                                                                                            SagaStatus... sagaStatus) {
         return paymentOutboxRepository.findByTypeAndSagaIdAndSagaStatus(ORDER_SAGA_NAME, sagaId, sagaStatus);
     }
 
     @Transactional
-    public void save(OrderPaymentOutboxMessage orderPaymentOutboxMessage){
-        OrderPaymentOutboxMessage response = paymentOutboxRepository.save(orderPaymentOutboxMessage);
-        if(response == null){
-            log.error("Could not save OrderPaymentOutboxMessage with outbox id: {}", orderPaymentOutboxMessage.getId());
-            throw new OrderDomainException("Could not save OrderPaymentOutboxMessage with outbox id: " +
-                    orderPaymentOutboxMessage.getId());
-        }
-        log.info("OrderPaymentOutboxMessage save with outbox id: {} ", orderPaymentOutboxMessage.getId());
+    public void save(OrderPaymentOutboxMessage orderPaymentOutboxMessage) {
+       OrderPaymentOutboxMessage response = paymentOutboxRepository.save(orderPaymentOutboxMessage);
+       if (response == null) {
+           log.error("Could not save OrderPaymentOutboxMessage with outbox id: {}", orderPaymentOutboxMessage.getId());
+           throw new OrderDomainException("Could not save OrderPaymentOutboxMessage with outbox id: " +
+                   orderPaymentOutboxMessage.getId());
+       }
+       log.info("OrderPaymentOutboxMessage saved with outbox id: {}", orderPaymentOutboxMessage.getId());
     }
 
+    @Transactional
     public void savePaymentOutboxMessage(OrderPaymentEventPayload paymentEventPayload,
                                          OrderStatus orderStatus,
                                          SagaStatus sagaStatus,
                                          OutboxStatus outboxStatus,
-                                         UUID sagaId){
+                                         UUID sagaId) {
         save(OrderPaymentOutboxMessage.builder()
                 .id(UUID.randomUUID())
                 .sagaId(sagaId)
@@ -78,19 +78,18 @@ public class PaymentOutboxHelper {
 
     @Transactional
     public void deletePaymentOutboxMessageByOutboxStatusAndSagaStatus(OutboxStatus outboxStatus,
-                                                                      SagaStatus ... sagaStatus){
+                                                                      SagaStatus... sagaStatus) {
         paymentOutboxRepository.deleteByTypeAndOutboxStatusAndSagaStatus(ORDER_SAGA_NAME, outboxStatus, sagaStatus);
     }
-
 
     private String createPayload(OrderPaymentEventPayload paymentEventPayload) {
         try {
             return objectMapper.writeValueAsString(paymentEventPayload);
         } catch (JsonProcessingException e) {
-           log.error("Could not create OrderPaymentEventPayload object for order id: {} ",
-                   paymentEventPayload.getOrderId(), e);
-           throw new OrderDomainException("Could not create OrderPaymentEventPayload object for order id: " +
-            paymentEventPayload.getOrderId(), e);
+            log.error("Could not create OrderPaymentEventPayload object for order id: {}",
+                    paymentEventPayload.getOrderId(), e);
+            throw new OrderDomainException("Could not create OrderPaymentEventPayload object for order id: " +
+                    paymentEventPayload.getOrderId(), e);
         }
     }
 }

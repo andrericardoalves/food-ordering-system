@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>com.food.ordering.system</groupId>
-            <artifactId>payment-dataacess</artifactId>
+            <artifactId>payment-dataaccess</artifactId>
         </dependency>
         <dependency>
             <groupId>com.food.ordering.system</groupId>

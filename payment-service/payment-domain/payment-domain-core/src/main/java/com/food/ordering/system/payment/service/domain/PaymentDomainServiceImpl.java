@@ -1,6 +1,5 @@
 package com.food.ordering.system.payment.service.domain;
 
-import com.food.ordering.system.domain.event.publisher.DomainEventPublisher;
 import com.food.ordering.system.domain.valueobject.Money;
 import com.food.ordering.system.domain.valueobject.PaymentStatus;
 import com.food.ordering.system.payment.service.domain.entity.CreditEntry;
@@ -104,13 +103,12 @@ public class PaymentDomainServiceImpl implements PaymentDomainService{
                     "  doesn't enough credit according to credit history");
         }
 
-        if(!creditEntry.getTotalCreditAmount().equals(totalCreditHistory.subtract(totalDebitHistory))){
-            log.error("Credit history is not equal to current for customer id: {}!",
-                    creditEntry.getCustomerId().getValue());
-            failureMessages.add("Credit history total is not equal to current credit for id: " +
-                    creditEntry.getCustomerId().getValue() + "!");
-        }
-
+            if (!creditEntry.getTotalCreditAmount().equals(totalCreditHistory.subtract(totalDebitHistory))) {
+                log.error("Credit history total is not equal to current credit for customer id: {}!",
+                        creditEntry.getCustomerId().getValue());
+                failureMessages.add("Credit history total is not equal to current credit for customer id: " +
+                        creditEntry.getCustomerId().getValue() + "!");
+            }
     }
 
     private Money getTotalHistoryAmount(List<CreditHistory> creditHistories, TransactionType transactionType) {

@@ -78,7 +78,7 @@ public class OrderMessagingDataMapper {
                 .build();
     }
 
-    public com.food.ordering.system.order.service.domain.dto.message.CustomerModel customerAvroModelToCustomerModel(CustomerAvroModel customerAvroModel) {
+    public CustomerModel customerAvroModelToCustomerModel(CustomerAvroModel customerAvroModel) {
         return CustomerModel.builder()
                 .id(customerAvroModel.getId())
                 .username(customerAvroModel.getUsername())

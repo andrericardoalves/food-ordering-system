@@ -67,10 +67,10 @@ public class OrderApplicationServiceTest {
     private CreateOrderCommand createOrderCommand;
     private CreateOrderCommand createOrderCommandWrongPrice;
     private CreateOrderCommand createOrderCommandWrongProductPrice;
-    private final UUID CUSTOMER_ID = UUID.fromString("fc35b3c3-2cb6-4ef9-8d3c-6ad8de9f2467");
-    private final UUID RESTAURANT_ID = UUID.fromString("214a6fc9-6e73-49ed-9ebe-de448b68137e");
-    private final UUID PRODUCT_ID = UUID.fromString("5872fccd-1578-4395-b067-0f38d8aa1923");
-    private final UUID ORDER_ID = UUID.fromString("c3a223df-5d86-4f50-bde3-119c8e181ba3");
+    private final UUID CUSTOMER_ID = UUID.fromString("d215b5f8-0249-4dc5-89a3-51fd148cfb41");
+    private final UUID RESTAURANT_ID = UUID.fromString("d215b5f8-0249-4dc5-89a3-51fd148cfb45");
+    private final UUID PRODUCT_ID = UUID.fromString("d215b5f8-0249-4dc5-89a3-51fd148cfb48");
+    private final UUID ORDER_ID = UUID.fromString("15a497c1-0f4b-4eff-b9f4-c402c8c07afb");
     private final UUID SAGA_ID = UUID.fromString("15a497c1-0f4b-4eff-b9f4-c402c8c07afa");
     private final BigDecimal PRICE = new BigDecimal("200.00");
 

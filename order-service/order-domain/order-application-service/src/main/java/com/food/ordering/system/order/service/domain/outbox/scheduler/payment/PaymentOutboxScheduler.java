@@ -30,31 +30,30 @@ public class PaymentOutboxScheduler implements OutboxScheduler {
     @Override
     @Transactional
     @Scheduled(fixedDelayString = "${order-service.outbox-scheduler-fixed-rate}",
-               initialDelayString = "${order-service.outbox-scheduler-initial-delay}")
+                initialDelayString = "${order-service.outbox-scheduler-initial-delay}")
     public void processOutboxMessage() {
-     Optional<List<OrderPaymentOutboxMessage>> outboxMessageResponse = paymentOutboxHelper
-                .getPaymentOutboxMessageByOutboxStatusAndSagaStatus(
-                        OutboxStatus.STARTED,
-                        SagaStatus.STARTED,
-                        SagaStatus.COMPENSATING);
+       Optional<List<OrderPaymentOutboxMessage>> outboxMessagesResponse =
+               paymentOutboxHelper.getPaymentOutboxMessageByOutboxStatusAndSagaStatus(
+                       OutboxStatus.STARTED,
+                       SagaStatus.STARTED,
+                       SagaStatus.COMPENSATING);
 
-     if(outboxMessageResponse.isPresent() && outboxMessageResponse.get().size() > 0){
-         List<OrderPaymentOutboxMessage> outboxMessages = outboxMessageResponse.get();
-         log.info("Received {} OrderPaymentOutboxMessage with ids: {}, sending to message bus!",
-                 outboxMessages.size(),
-                 outboxMessages.stream().map( outboxMessage ->
-                         outboxMessage.getId().toString()).collect(Collectors.joining(",")));
-         outboxMessages.forEach( outboxMessage ->
-                 paymentRequestMessagePublisher.publish(outboxMessage,this::updateOutboxStatus));
-         log.info("{} OrderPaymentOutboxMessage sent to message bus!", outboxMessages.size());
-     }
+       if (outboxMessagesResponse.isPresent() && outboxMessagesResponse.get().size() > 0) {
+           List<OrderPaymentOutboxMessage> outboxMessages = outboxMessagesResponse.get();
+           log.info("Received {} OrderPaymentOutboxMessage with ids: {}, sending to message bus!",
+                   outboxMessages.size(),
+                   outboxMessages.stream().map(outboxMessage ->
+                           outboxMessage.getId().toString()).collect(Collectors.joining(",")));
+           outboxMessages.forEach(outboxMessage ->
+                   paymentRequestMessagePublisher.publish(outboxMessage, this::updateOutboxStatus));
+           log.info("{} OrderPaymentOutboxMessage sent to message bus!", outboxMessages.size());
+       }
 
     }
 
-    private void updateOutboxStatus(OrderPaymentOutboxMessage orderPaymentOutboxMessage,
-                                    OutboxStatus outboxStatus){
+    private void updateOutboxStatus(OrderPaymentOutboxMessage orderPaymentOutboxMessage, OutboxStatus outboxStatus) {
         orderPaymentOutboxMessage.setOutboxStatus(outboxStatus);
         paymentOutboxHelper.save(orderPaymentOutboxMessage);
-        log.info("OrderPaymentOutboxMessage is update with outbox status: {} ", outboxStatus.name());
+        log.info("OrderPaymentOutboxMessage is updated with outbox status: {}", outboxStatus.name());
     }
 }
